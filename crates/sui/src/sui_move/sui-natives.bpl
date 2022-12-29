@@ -5,11 +5,45 @@
 // Native address
 
 
-procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int);
+const $MAX_ADDRESS: int;
+axiom $MAX_ADDRESS == 1461501637330902918203684832716283019655932542975;
 
-procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int);
+function $2_address_deserialize(bytes: Vec (int)): int;
 
-procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int);
+axiom (forall v1, v2: Vec (int) :: {$2_address_deserialize(v1), $2_address_deserialize(v2)}
+   $IsEqual'vec'u8''(v1, v2) <==> $IsEqual'address'($2_address_deserialize(v1), $2_address_deserialize(v2)));
+
+axiom (forall v: Vec (int) :: {$2_address_deserialize(v)}
+     ( var r := $2_address_deserialize(v); $IsValid'address'(r) ));
+
+procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
+{
+    var len: int;
+    len := LenVec(bytes);
+    if (len != 20) {
+        call $ExecFailureAbort();
+        return;
+    }
+    res := $2_address_deserialize(bytes);
+}
+
+procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int)
+{
+    if ( !$IsValid'address'(addr) ) {
+        call $ExecFailureAbort();
+        return;
+    }
+    res := addr;
+}
+
+procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int)
+{
+    if ( !$IsValid'u256'(num) || num > $MAX_ADDRESS ) {
+        call $ExecFailureAbort();
+        return;
+    }
+    res := num;
+}
 
 // ==================================================================================
 // Native transfer
