@@ -50,12 +50,24 @@ module sui::balance {
         Balance { value }
     }
 
+    spec increase_supply {
+        aborts_if value >= (MAX_U64 - self.value) with EOverflow;
+        ensures self.value == old(self.value) + value;
+        ensures result.value == value;
+    }
+
     /// Burn a Balance<T> and decrease Supply<T>.
     public fun decrease_supply<T>(self: &mut Supply<T>, balance: Balance<T>): u64 {
         let Balance { value } = balance;
         assert!(self.value >= value, EOverflow);
         self.value = self.value - value;
         value
+    }
+
+    spec decrease_supply {
+        aborts_if self.value < balance.value with EOverflow;
+        ensures self.value == old(self.value) - balance.value;
+        ensures result == balance.value;
     }
 
     /// Create a zero `Balance` for type `T`.
