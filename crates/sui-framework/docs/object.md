@@ -193,6 +193,19 @@ Make an <code><a href="object.md#0x2_object_ID">ID</a></code> from raw bytes.
 
 </details>
 
+<details>
+<summary>Specification</summary>
+
+
+
+<pre><code><b>pragma</b> verify = <b>true</b>;
+<b>aborts_if</b> <b>false</b>;
+</code></pre>
+
+
+
+</details>
+
 <a name="0x2_object_id_from_address"></a>
 
 ## Function `id_from_address`
