@@ -27,14 +27,30 @@ procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
     res := $2_address_deserialize(bytes);
 }
 
+function $2_u256_from_address(addr: int): int;
+
+axiom (forall a1, a2: int :: {$2_u256_from_address(a1), $2_u256_from_address(a2)}
+   $IsEqual'address'(a1, a2) <==> $IsEqual'u256'($2_u256_from_address(a1), $2_u256_from_address(a2)));
+
+axiom (forall a: int :: {$2_u256_from_address(a)}
+     ( var r := $2_u256_from_address(a); $IsValid'u256'(r) ));
+
 procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int)
 {
     if ( !$IsValid'address'(addr) ) {
         call $ExecFailureAbort();
         return;
     }
-    res := addr;
+    res := $2_u256_from_address(addr);
 }
+
+function $2_u256_to_address(num: int): int;
+
+axiom (forall n1, n2: int :: {$2_u256_to_address(n1), $2_u256_to_address(n2)}
+   $IsEqual'u256'(n1, n2) <==> $IsEqual'address'($2_u256_to_address(n1), $2_u256_to_address(n2)));
+
+axiom (forall n: int :: {$2_u256_to_address(n)}
+     ( var r := $2_u256_to_address(n); $IsValid'address'(r) ));
 
 procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int)
 {
@@ -42,7 +58,7 @@ procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int)
         call $ExecFailureAbort();
         return;
     }
-    res := num;
+    res := $2_u256_to_address(num);
 }
 
 // ==================================================================================
