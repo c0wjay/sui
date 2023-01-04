@@ -11,13 +11,6 @@ axiom $MAX_ADDRESS == 1461501637330902918203684832716283019655932542975;
 const $ADRESS_LENGTH: int;
 axiom $ADRESS_LENGTH == 20;
 
-// helper function for Exponentiation.
-function Int#pow(n : int, m : int) returns (int) {
-   if (n != 0) && (m == 0) then 1
-   else if m > 0 then n * Int#pow(n,m - 1)
-   else 0
-}
-
 // helper function with hard-coded length of vevtor for converting vector to int. 
 // TODO: This is a temporary solution.
 function $2_address_deserialize(bytes: Vec (int)): int
@@ -28,7 +21,7 @@ function $2_address_deserialize(bytes: Vec (int)): int
     i := 0;
     while (i < $ADRESS_LENGTH)
     {
-        addr := addr + (ReadVec(bytes, i) * Int#pow(256, $ADRESS_LENGTH - i - 1));
+        addr := addr * 256 + ReadVec(bytes, i);
         i := i + 1;
     }
     addr
