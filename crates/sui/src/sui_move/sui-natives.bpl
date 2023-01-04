@@ -8,7 +8,31 @@
 const $MAX_ADDRESS: int;
 axiom $MAX_ADDRESS == 1461501637330902918203684832716283019655932542975;
 
-function $2_address_deserialize(bytes: Vec (int)): int;
+const $ADRESS_LENGTH: int;
+axiom $ADRESS_LENGTH == 20;
+
+// helper function for Exponentiation.
+function Int#pow(n : int, m : int) returns (int) {
+   if (n != 0) && (m == 0) then 1
+   else if m > 0 then n * Int#pow(n,m - 1)
+   else 0
+}
+
+// helper function with hard-coded length of vevtor for converting vector to int. 
+// TODO: This is a temporary solution.
+function $2_address_deserialize(bytes: Vec (int)): int
+{
+    var addr : int;
+    var i : int;
+    addr := 0;
+    i := 0;
+    while (i < $ADRESS_LENGTH)
+    {
+        addr := addr + (ReadVec(bytes, i) * Int#pow(256, $ADRESS_LENGTH - i - 1));
+        i := i + 1;
+    }
+    addr
+}
 
 axiom (forall v1, v2: Vec (int) :: {$2_address_deserialize(v1), $2_address_deserialize(v2)}
    $IsEqual'vec'u8''(v1, v2) <==> $IsEqual'address'($2_address_deserialize(v1), $2_address_deserialize(v2)));
@@ -27,7 +51,10 @@ procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
     res := $2_address_deserialize(bytes);
 }
 
-function $2_u256_from_address(addr: int): int;
+function $2_u256_from_address(addr: int): int
+{
+    addr
+}
 
 axiom (forall a1, a2: int :: {$2_u256_from_address(a1), $2_u256_from_address(a2)}
    $IsEqual'address'(a1, a2) <==> $IsEqual'u256'($2_u256_from_address(a1), $2_u256_from_address(a2)));
@@ -44,7 +71,10 @@ procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int)
     res := $2_u256_from_address(addr);
 }
 
-function $2_u256_to_address(num: int): int;
+function $2_u256_to_address(num: int): int
+{
+    num
+}
 
 axiom (forall n1, n2: int :: {$2_u256_to_address(n1), $2_u256_to_address(n2)}
    $IsEqual'u256'(n1, n2) <==> $IsEqual'address'($2_u256_to_address(n1), $2_u256_to_address(n2)));
