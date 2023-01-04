@@ -6,6 +6,7 @@ module sui::object {
     use std::bcs;
     use sui::address;
     use sui::tx_context::{Self, TxContext};
+    use sui::math;
 
     friend sui::dynamic_field;
     friend sui::dynamic_object_field;
@@ -61,7 +62,13 @@ module sui::object {
 
     /// Specify the calling of native function `address::from_bytes`
     spec id_from_bytes {
-        aborts_if len(bytes) != 20;
+        let addr = @0x89b9f9d1fadc027cf9532d6f99041522; //$t1
+        let expected_output = x"0000000089b9f9d1fadc027cf9532d6f99041522"; //$t2
+        aborts_if len(bytes) != 20;//$t0
+        aborts_if len(expected_output) !=20;
+        // ensures address::to_bytes(addr) == expected_output;
+        // ensures address::to_bytes(result.bytes) == bytes;
+        // ensures bytes[0] == (address::to_u256(result.bytes) / pow(2, 152));
     }
 
     /// Make an `ID` from an address.
