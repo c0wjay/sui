@@ -22,9 +22,9 @@ function Int#pow(n : int, m : int) returns (int) {
 // TODO: This is a temporary solution.
 function $2_address_deserialize(bytes: Vec (int)): int
 {
-    var addr : int;
-    var i : int;
+    var addr: int;
     addr := 0;
+    var i: int;
     i := 0;
     while (i < $ADRESS_LENGTH)
     {
