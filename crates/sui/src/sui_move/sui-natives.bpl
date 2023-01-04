@@ -15,16 +15,17 @@ axiom $ADRESS_LENGTH == 20;
 // TODO: This is a temporary solution.
 function $2_address_deserialize(bytes: Vec (int)): int
 {
-    var addr: int;
-    addr := 0;
-    var i: int;
-    i := 0;
-    while (i < $ADRESS_LENGTH)
-    {
-        addr := addr * 256 + ReadVec(bytes, i);
-        i := i + 1;
-    }
-    addr
+    // var addr: int;
+    // addr := 0;
+    // var i: int;
+    // i := 0;
+    // while (i < $ADRESS_LENGTH)
+    // {
+    //     addr := addr * 256 + ReadVec(bytes, i);
+    //     i := i + 1;
+    // }
+    // addr
+    (((((((((((((((((((ReadVec(bytes, 0) * 256 + ReadVec(bytes, 1)) * 256 + ReadVec(bytes, 2)) * 256 + ReadVec(bytes, 3)) * 256 + ReadVec(bytes, 4)) * 256 + ReadVec(bytes, 5)) * 256 + ReadVec(bytes, 6)) * 256 + ReadVec(bytes, 7)) * 256 + ReadVec(bytes, 8)) * 256 + ReadVec(bytes, 9)) * 256 + ReadVec(bytes, 10)) * 256 + ReadVec(bytes, 11)) * 256 + ReadVec(bytes, 12)) * 256 + ReadVec(bytes, 13)) * 256 + ReadVec(bytes, 14)) * 256 + ReadVec(bytes, 15)) * 256 + ReadVec(bytes, 16)) * 256 + ReadVec(bytes, 17)) * 256 + ReadVec(bytes, 18)) * 256 + ReadVec(bytes, 19))
 }
 
 axiom (forall v1, v2: Vec (int) :: {$2_address_deserialize(v1), $2_address_deserialize(v2)}
@@ -42,6 +43,10 @@ procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
         return;
     }
     res := $2_address_deserialize(bytes);
+}
+
+function {:inline} $2_address_$from_bytes(bytes: Vec (int)): int {
+    $2_address_deserialize(bytes)
 }
 
 function $2_u256_from_address(addr: int): int
