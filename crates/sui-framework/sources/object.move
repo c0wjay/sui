@@ -6,7 +6,6 @@ module sui::object {
     use std::bcs;
     use sui::address;
     use sui::tx_context::{Self, TxContext};
-    use sui::math;
 
     friend sui::dynamic_field;
     friend sui::dynamic_object_field;
@@ -65,10 +64,11 @@ module sui::object {
         let addr = @0x89b9f9d1fadc027cf9532d6f99041522; //$t1
         let expected_output = x"0000000089b9f9d1fadc027cf9532d6f99041522"; //$t2
         aborts_if len(bytes) != 20;//$t0
-        aborts_if len(expected_output) !=20;
-        // ensures address::to_bytes(addr) == expected_output;
-        // ensures address::to_bytes(result.bytes) == bytes;
-        // ensures bytes[0] == (address::to_u256(result.bytes) / pow(2, 152));
+        // aborts_if len(expected_output) != 20;
+        aborts_if address::from_bytes(expected_output) != addr;
+        // aborts_if address::to_bytes(addr) != expected_output;
+        ensures address::from_bytes(bytes) == result.bytes;
+        // ensures bytes == id_to_bytes(result);  // to enable ensure in `bcs::to_bytes`, function `$1_bcs_serialize'address'` should return value.
     }
 
     /// Make an `ID` from an address.
