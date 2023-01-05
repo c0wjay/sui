@@ -11,29 +11,20 @@ axiom $MAX_ADDRESS == 1461501637330902918203684832716283019655932542975;
 const $ADRESS_LENGTH: int;
 axiom $ADRESS_LENGTH == 20;
 
-// helper procedure with hard-coded length of vevtor for converting vector to int. 
-// TODO: This is a temporary solution.
-procedure {:inline 1} $2_address_deserialize(bytes: Vec (int)) returns (res: int)
+// helper function for converting vector to address.
+function $2_peel_vector_to_address(bytes: Vec (int), len: int): int
 {
-    var index, addr: int;
-    index, addr := 0, 0;
-
-    while (index < $ADRESS_LENGTH)
-    {
-        addr := addr * 256 + ReadVec(bytes, index);
-        index := index + 1;
-    }
-    res := addr;
-    return;
-    // (((((((((((((((((((ReadVec(bytes, 0) * 256 + ReadVec(bytes, 1)) * 256 + ReadVec(bytes, 2)) * 256 + ReadVec(bytes, 3)) * 256 + ReadVec(bytes, 4)) * 256 + ReadVec(bytes, 5)) * 256 + ReadVec(bytes, 6)) * 256 + ReadVec(bytes, 7)) * 256 + ReadVec(bytes, 8)) * 256 + ReadVec(bytes, 9)) * 256 + ReadVec(bytes, 10)) * 256 + ReadVec(bytes, 11)) * 256 + ReadVec(bytes, 12)) * 256 + ReadVec(bytes, 13)) * 256 + ReadVec(bytes, 14)) * 256 + ReadVec(bytes, 15)) * 256 + ReadVec(bytes, 16)) * 256 + ReadVec(bytes, 17)) * 256 + ReadVec(bytes, 18)) * 256 + ReadVec(bytes, 19))
+    if len > 0 then 256 * $2_peel_vector_to_address(bytes, len-1) + ReadVec(bytes, len-1)
+    else 0
 }
 
-axiom (forall v1, v2: Vec (int) :: {$2_address_deserialize(v1), $2_address_deserialize(v2)}
-   $IsEqual'vec'u8''(v1, v2) <==> $IsEqual'address'($2_address_deserialize(v1), $2_address_deserialize(v2)));
+axiom (forall v1, v2: Vec (int) :: {$2_peel_vector_to_address(v1, $ADRESS_LENGTH), $2_peel_vector_to_address(v2, $ADRESS_LENGTH)}
+   $IsEqual'vec'u8''(v1, v2) <==> $IsEqual'address'($2_peel_vector_to_address(v1, $ADRESS_LENGTH), $2_peel_vector_to_address(v2, $ADRESS_LENGTH)));
 
-axiom (forall v: Vec (int) :: {$2_address_deserialize(v)}
-     ( var r := $2_address_deserialize(v); $IsValid'address'(r) ));
+axiom (forall v: Vec (int) :: {$2_peel_vector_to_address(v, $ADRESS_LENGTH)}
+     ( var r := $2_peel_vector_to_address(v, $ADRESS_LENGTH); $IsValid'address'(r) ));
 
+// procedure that check abort condition, and converting bytes to address.
 procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
 {
     var len: int;
@@ -42,18 +33,11 @@ procedure {:inline 1} $2_address_from_bytes(bytes: Vec (int)) returns (res: int)
         call $ExecFailureAbort();
         return;
     }
-    call res := $2_address_deserialize(bytes);
+    res := $2_peel_vector_to_address(bytes, $ADRESS_LENGTH);
 }
 
-procedure {:inline 1} $2_address_$from_bytes(bytes: Vec (int)) returns (res: int)
-{
-    var len: int;
-    len := LenVec(bytes);
-    if (len != 20) {
-        call $ExecFailureAbort();
-        return;
-    }
-    call res := $2_address_deserialize(bytes);
+function {:inline} $2_address_$from_bytes(bytes: Vec (int)): int {
+    $2_peel_vector_to_address(bytes, $ADRESS_LENGTH)
 }
 
 function $2_u256_from_address(addr: int): int
@@ -67,6 +51,7 @@ axiom (forall a1, a2: int :: {$2_u256_from_address(a1), $2_u256_from_address(a2)
 axiom (forall a: int :: {$2_u256_from_address(a)}
      ( var r := $2_u256_from_address(a); $IsValid'u256'(r) ));
 
+// procedure that check abort condition, and converting address to u256.
 procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int)
 {
     if ( !$IsValid'address'(addr) ) {
@@ -74,6 +59,10 @@ procedure {:inline 1} $2_address_to_u256(addr: int) returns (res: int)
         return;
     }
     res := $2_u256_from_address(addr);
+}
+
+function {:inline} $2_address_$to_u256(addr: int): int {
+    $2_u256_from_address(addr)
 }
 
 function $2_u256_to_address(num: int): int
@@ -87,6 +76,7 @@ axiom (forall n1, n2: int :: {$2_u256_to_address(n1), $2_u256_to_address(n2)}
 axiom (forall n: int :: {$2_u256_to_address(n)}
      ( var r := $2_u256_to_address(n); $IsValid'address'(r) ));
 
+// procedure that check abort condition, and converting u256 to address.
 procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int)
 {
     if ( !$IsValid'u256'(num) || num > $MAX_ADDRESS ) {
@@ -94,6 +84,10 @@ procedure {:inline 1} $2_address_from_u256(num: int) returns (res: int)
         return;
     }
     res := $2_u256_to_address(num);
+}
+
+function {:inline} $2_address_$from_u256(num: int): int {
+    $2_u256_to_address(num)
 }
 
 // ==================================================================================
