@@ -61,14 +61,8 @@ module sui::object {
 
     /// Specify the calling of native function `address::from_bytes`
     spec id_from_bytes {
-        let addr = @0x89b9f9d1fadc027cf9532d6f99041522; //$t1
-        let expected_output = x"0000000089b9f9d1fadc027cf9532d6f99041522"; //$t2
-        aborts_if len(bytes) != 20;//$t0
-        // aborts_if len(expected_output) != 20;
-        aborts_if address::from_bytes(expected_output) != addr;
-        // aborts_if address::to_bytes(addr) != expected_output;
+        aborts_if len(bytes) != 20;
         ensures address::from_bytes(bytes) == result.bytes;
-        // ensures bytes == id_to_bytes(result);  // to enable ensure in `bcs::to_bytes`, function `$1_bcs_serialize'address'` should return value.
     }
 
     /// Make an `ID` from an address.
