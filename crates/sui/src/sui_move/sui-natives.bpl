@@ -12,11 +12,11 @@ const $ADRESS_LENGTH: int;
 axiom $ADRESS_LENGTH == 20;
 
 // helper function for converting vector to address.
-function $2_peel_vector_to_address(bytes: Vec (int), len: int): int
-{
-    if len > 0 then 256 * $2_peel_vector_to_address(bytes, len-1) + ReadVec(bytes, len-1)
-    else 0
-}
+function $2_peel_vector_to_address(bytes: Vec (int), len: int): int;
+// {
+//     if len > 0 then 256 * $2_peel_vector_to_address(bytes, len-1) + ReadVec(bytes, len-1)
+//     else 0
+// }
 
 axiom (forall v1, v2: Vec (int) :: {$2_peel_vector_to_address(v1, $ADRESS_LENGTH), $2_peel_vector_to_address(v2, $ADRESS_LENGTH)}
    $IsEqual'vec'u8''(v1, v2) <==> $IsEqual'address'($2_peel_vector_to_address(v1, $ADRESS_LENGTH), $2_peel_vector_to_address(v2, $ADRESS_LENGTH)));
